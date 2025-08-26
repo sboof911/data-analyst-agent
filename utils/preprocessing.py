@@ -5,6 +5,6 @@ def preprocess_data(file_path):
     return df
 
 def prepare_data(file_path):
-    df = preprocess_data(file_path)
     # Data already clear
-    return df
+    df = preprocess_data(file_path)
+    df.to_csv(file_path[:file_path.rfind("/")] + "/processed_" + file_path[file_path.rfind("/")+1:], index=False)

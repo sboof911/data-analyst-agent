@@ -1,10 +1,12 @@
 import sqlite3
 import pandas as pd
 import os
+from dotenv import load_dotenv
 
+load_dotenv()
 # Paths
-DB_PATH = os.path.join(os.path.dirname(__file__), 'bank_client.db')
-SQL_PATH = os.path.join(os.path.dirname(__file__), 'init_db.sql')
+DB_PATH = str(os.getenv("DB_PATH"))
+SQL_PATH = str(os.getenv("SQL_PATH"))
 
 def create_db(cursor):
 	with open(SQL_PATH, 'r') as f:

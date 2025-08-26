@@ -1,0 +1,35 @@
+
+Business Logic for Bank Client Transactions
+
+1. Transaction Types
+	- Deposit: Money added to the account.
+	- Withdrawal: Money taken out of the account.
+	- Transfer: Money sent to another account.
+
+2. Transaction Status
+	- Completed: Transaction fully processed and balance updated.
+	- Pending: Transaction initiated but not yet completed; does not affect balance.
+	- Canceled: Transaction was canceled; does not affect balance.
+
+3. Balance Logic
+	- balance_after_transaction reflects the account balance after each transaction is applied.
+	- Only transactions with transaction_status = Completed affect the balance.
+
+4. Fees
+	- fee_applied is subtracted from the account when applicable.
+	- Fees do not appear in transaction_amount; they only affect balance_after_transaction.
+
+5. Channels
+	- ATM: Automated Teller Machine transactions.
+	- Branch: Transactions conducted in-person at a bank branch.
+	- Online: Mobile app or web banking transactions.
+
+6. Derived Calculations / Examples
+	- Spending by month: Sum of transaction_amount where transaction_type = Withdrawal, grouped by month.
+	- Income by month: Sum of transaction_amount where transaction_type = Deposit, grouped by month.
+	- Net change in balance: Last balance_after_transaction minus first balance_after_transaction for a period.
+
+7. Agent Notes
+	- All data is for a single client — queries do not need account IDs.
+	- Only Completed transactions should be used in calculations.
+	- The agent should consider transaction_datetime for trend analysis (daily, weekly, monthly).

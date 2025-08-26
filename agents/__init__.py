@@ -10,6 +10,7 @@ load_dotenv()
 
 HUGGINGFACEHUB_API_TOKEN = str(os.getenv("HUGGINGFACEHUB_API_TOKEN"))
 SQLPROMPT_PATH = str(os.getenv("SQLPROMPT_PATH"))
+CLIENTPROMPT_PATH = str(os.getenv("CLIENTPROMPT_PATH"))
 
 class Agent:
     def __init__(self, llm_model="meta-llama/Llama-3.1-8B-Instruct:fireworks-ai"):
@@ -36,6 +37,20 @@ class Agent:
 
         return prompt
 
+    def get_user_response_prompt(self, rows, user_input):
+        prompt = None
+        try:
+            with open(CLIENTPROMPT_PATH, "r", encoding="utf-8") as f:
+                prompt = f.read()
+        except FileNotFoundError:
+            raise FileNotFoundError("Client prompt file not found.")
+        prompt = prompt.format(
+            results=rows,
+            user_input=user_input
+        )
+
+        return prompt
+
     def ask(self, user_input : str):
         sql_answer = self.model.chat.completions.create(
             model=self.llm_model,
@@ -48,13 +63,21 @@ class Agent:
         )
         
         query = sql_answer.choices[0].message.content
-        print(query)
         rows = self.sql_executor.execute(query)
 
-        # Step 5: Store the conversation
-        # self.memory.add(user_input, answer.choices[0].message)
+        user_response = self.model.chat.completions.create(
+            model=self.llm_model,
+            messages=[
+                {
+                    "role": "user",
+                    "content": self.get_user_response_prompt(rows, user_input)
+                }
+            ],
+        )
 
-        return rows
+        self.memory.add(user_input, user_response.choices[0].message.content)
+
+        return user_response.choices[0].message.content
 
     def set_sql_executor(self, sql_executor : SQLExecutor):
         self.sql_executor = sql_executor
